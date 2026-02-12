@@ -1179,8 +1179,22 @@ class ExportController {
   export() {
     const preview = document.getElementById('preview').cloneNode(true);
     
-    // Remove interactive elements
-    preview.querySelectorAll('.phase-actions, .icon-btn, .add-row-btn, .add-column-btn').forEach(el => el.remove());
+    // Remove interactive elements and their parent cells
+    // Remove the extra header column (+ Add column)
+    preview.querySelectorAll('th.add-column-btn').forEach(el => el.remove());
+    
+    // Remove the extra data column with delete row buttons
+    preview.querySelectorAll('tbody tr').forEach(row => {
+      const lastCell = row.querySelector('td:last-child');
+      if (lastCell && lastCell.querySelector('.icon-btn.danger')) {
+        lastCell.remove();
+      }
+    });
+    
+    // Remove all other interactive buttons and elements
+    preview.querySelectorAll('.phase-actions, .icon-btn, .add-row-btn, .add-column-btn, .column-delete-btn').forEach(el => el.remove());
+    
+    // Remove interactive attributes
     preview.querySelectorAll('[data-action]').forEach(el => {
       el.removeAttribute('data-action');
       el.removeAttribute('data-phase-id');
@@ -1190,6 +1204,8 @@ class ExportController {
       el.removeAttribute('draggable');
       el.removeAttribute('data-droppable');
     });
+    
+    // Clean up styling
     preview.querySelectorAll('.phase').forEach(el => {
       el.style.border = 'none';
       el.style.padding = '0';
