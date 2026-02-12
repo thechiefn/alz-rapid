@@ -839,6 +839,15 @@ class MatrixState {
     const phase = this.getPhase(phaseId);
     if (!phase || !phase.rows[rowIdx]) return;
     
+    // If adding a 'D' badge, remove any existing 'D' from other cells in this row
+    if (badge === 'D') {
+      phase.rows[rowIdx].values.forEach((cellBadges, idx) => {
+        if (idx !== colIdx && cellBadges.includes('D')) {
+          phase.rows[rowIdx].values[idx] = cellBadges.filter(b => b !== 'D');
+        }
+      });
+    }
+    
     const currentBadges = phase.rows[rowIdx].values[colIdx] || [];
     if (!currentBadges.includes(badge)) {
       currentBadges.push(badge);
