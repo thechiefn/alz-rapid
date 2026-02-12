@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAPID Matrix — Alianza Technology Group</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-primary: #1072ba;
+    --blue-dark: #0c5a94;
+    --navy: #17477e;
+    --navy-deep: #0e2d52;
+    --gold: #fdb73e;
+    --green: #8bad44;
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --text: #1a1d23;
+    --text-muted: #5a6070;
+    --border: #dfe2e8;
+    --border-light: #eceef2;
+
+    --r-bg: #e8f4fd; --r-text: #0c5a94; --r-border: #b3d9f2;
+    --a-bg: #fef5e0; --a-text: #8a6210; --a-border: #f5d88a;
+    --p-bg: #dceaf7; --p-text: #17477e; --p-border: #a3c4e4;
+    --i-bg: #eef5e2; --i-text: #4a6620; --i-border: #c5dba0;
+    --d-bg: #1a2d4a; --d-text: #ffffff; --d-border: #0e2d52;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 1400px; margin: 0 auto; padding: 40px 32px 80px; }
+
+  .header { margin-bottom: 40px; padding-bottom: 32px; border-bottom: 2px solid var(--border); }
+  .header h1 { font-size: 28px; font-weight: 700; color: var(--navy-deep); letter-spacing: -0.5px; margin-bottom: 8px; }
+  .header .subtitle { font-size: 15px; color: var(--text-muted); max-width: 720px; }
+  .disclaimer {
+    margin-top: 16px; padding: 12px 16px;
+    background: var(--a-bg); border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0; font-size: 13px; color: var(--a-text); font-weight: 500;
+  }
+
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+  .legend-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 26px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+  }
+  .badge-R { background: var(--r-bg); color: var(--r-text); border: 1px solid var(--r-border); }
+  .badge-A { background: var(--a-bg); color: var(--a-text); border: 1px solid var(--a-border); }
+  .badge-P { background: var(--p-bg); color: var(--p-text); border: 1px solid var(--p-border); }
+  .badge-I { background: var(--i-bg); color: var(--i-text); border: 1px solid var(--i-border); }
+  .badge-D { background: var(--d-bg); color: var(--d-text); border: 1px solid var(--d-border); }
+
+  .phase { margin-bottom: 36px; }
+  .phase-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .phase-number {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; background: var(--navy-deep); color: #fff;
+    border-radius: 50%; font-size: 13px; font-weight: 700;
+  }
+  .phase-title { font-size: 16px; font-weight: 700; color: var(--navy-deep); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .matrix-wrap {
+    overflow-x: auto; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13px; }
+  thead th {
+    background: var(--navy-deep); color: #ffffff; font-weight: 600; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.4px; padding: 12px 14px; text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 2;
+  }
+  thead th:first-child { text-align: left; min-width: 280px; position: sticky; left: 0; z-index: 3; }
+  thead th:last-child { border-right: none; }
+
+  tbody td {
+    padding: 10px 14px; text-align: center;
+    border-bottom: 1px solid var(--border-light); border-right: 1px solid var(--border-light); vertical-align: middle;
+  }
+  tbody td:first-child {
+    text-align: left; font-weight: 500; color: var(--text); background: var(--surface);
+    position: sticky; left: 0; z-index: 1; border-right: 1px solid var(--border);
+  }
+  tbody td:last-child { border-right: none; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #f8f9fb; }
+  tbody tr:hover td:first-child { background: #f0f1f4; }
+
+  .cell-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 28px; height: 24px; padding: 0 8px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+  }
+  .cell-R { background: var(--r-bg); color: var(--r-text); border: 1px solid var(--r-border); }
+  .cell-A { background: var(--a-bg); color: var(--a-text); border: 1px solid var(--a-border); }
+  .cell-P { background: var(--p-bg); color: var(--p-text); border: 1px solid var(--p-border); }
+  .cell-I { background: var(--i-bg); color: var(--i-text); border: 1px solid var(--i-border); }
+  .cell-D { background: var(--d-bg); color: var(--d-text); border: 1px solid var(--d-border); }
+  .cell-empty { color: var(--border); font-size: 16px; }
+  .multi-badge { display: inline-flex; gap: 4px; align-items: center; justify-content: center; }
+
+  .notes {
+    margin-top: 40px; padding: 24px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px;
+  }
+  .notes h3 { font-size: 14px; font-weight: 700; color: var(--navy-deep); margin-bottom: 12px; }
+  .notes ul { list-style: none; padding: 0; }
+  .notes li { font-size: 13px; color: var(--text-muted); padding: 4px 0; padding-left: 16px; position: relative; }
+  .notes li::before { content: '→'; position: absolute; left: 0; color: var(--blue-primary); font-weight: 600; }
+
+  @media print {
+    body { background: #fff; }
+    .page { padding: 20px; }
+    thead th, tbody td:first-child { position: static; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>RAPID Matrix — Technology Group</h1>
+    <p class="subtitle">Decision-making and execution responsibilities across the software development lifecycle. Each activity identifies who recommends, who can veto, who performs the work, who provides input, and who makes the final call.</p>
+    <div class="disclaimer">⚠️ Discussion starter — This is an example matrix to provoke conversation, not a final mandate. Validate assignments with each team and adjust based on your org's reality.</div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-badge badge-R">R</span> Recommend</div>
+    <div class="legend-item"><span class="legend-badge badge-A">A</span> Agree (veto)</div>
+    <div class="legend-item"><span class="legend-badge badge-P">P</span> Perform</div>
+    <div class="legend-item"><span class="legend-badge badge-I">I</span> Input</div>
+    <div class="legend-item"><span class="legend-badge badge-D">D</span> Decide</div>
+  </div>
+
+  <!-- Phase 1: Planning & Requirements -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-number">1</span>
+      <span class="phase-title">Planning & Requirements</span>
+    </div>
+    <div class="matrix-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Activity</th>
+            <th>Product</th>
+            <th>Engineering</th>
+            <th>Architecture</th>
+            <th>Program Mgmt</th>
+            <th>SRE</th>
+            <th>Security &amp; Compliance</th>
+            <th>Support</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Product Requirements Definition</td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+          </tr>
+          <tr>
+            <td>Application Security Requirements</td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-empty">—</span></td>
+          </tr>
+          <tr>
+            <td>Capacity Planning</td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-D">D</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-P">P</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+          </tr>
+          <tr>
+            <td>Budget Planning</td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+          </tr>
+          <tr>
+            <td>Risk Assessment</td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Phase 2: Design & Development -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-number">2</span>
+      <span class="phase-title">Design & Development</span>
+    </div>
+    <div class="matrix-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Activity</th>
+            <th>Product</th>
+            <th>Engineering</th>
+            <th>Architecture</th>
+            <th>Program Mgmt</th>
+            <th>SRE</th>
+            <th>Security &amp; Compliance</th>
+            <th>Support</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Software Architecture</td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-A">A</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+          </tr>
+          <tr>
+            <td>Technical Design</td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+          </tr>
+          <tr>
+            <td>Code Development</td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Phase 3: Testing & Security -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-number">3</span>
+      <span class="phase-title">Testing & Security</span>
+    </div>
+    <div class="matrix-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Activity</th>
+            <th>Product</th>
+            <th>Engineering</th>
+            <th>Architecture</th>
+            <th>Program Mgmt</th>
+            <th>SRE</th>
+            <th>Security &amp; Compliance</th>
+            <th>Support</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Testing Strategy &amp; Execution</td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+          </tr>
+          <tr>
+            <td>Security &amp; Compliance Review</td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-empty">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Phase 4: Release & Deployment -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-number">4</span>
+      <span class="phase-title">Release & Deployment</span>
+    </div>
+    <div class="matrix-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Activity</th>
+            <th>Product</th>
+            <th>Engineering</th>
+            <th>Architecture</th>
+            <th>Program Mgmt</th>
+            <th>SRE</th>
+            <th>Security &amp; Compliance</th>
+            <th>Support</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Release Planning</td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+          </tr>
+          <tr>
+            <td>Production Deployment</td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-badge cell-A">A</span></td>
+            <td><span class="cell-empty">—</span></td>
+          </tr>
+          <tr>
+            <td>Change Management</td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-badge cell-A">A</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Phase 5: Operations & Support -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-number">5</span>
+      <span class="phase-title">Operations & Support</span>
+    </div>
+    <div class="matrix-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Activity</th>
+            <th>Product</th>
+            <th>Engineering</th>
+            <th>Architecture</th>
+            <th>Program Mgmt</th>
+            <th>SRE</th>
+            <th>Security &amp; Compliance</th>
+            <th>Support</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Performance Monitoring</td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-D">D</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-P">P</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+          </tr>
+          <tr>
+            <td>Incident Response</td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+          </tr>
+          <tr>
+            <td>Infrastructure Management</td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+          </tr>
+          <tr>
+            <td>Production Access</td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+          </tr>
+          <tr>
+            <td>User Training &amp; Support</td>
+            <td><span class="cell-badge cell-D">D</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-P">P</span></td>
+          </tr>
+          <tr>
+            <td>Customer Issue Resolution &amp; Feedback</td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+          </tr>
+          <tr>
+            <td>Support Process &amp; Procedures</td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+          </tr>
+          <tr>
+            <td>Knowledge Base Management</td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+          </tr>
+          <tr>
+            <td>Documentation &amp; Knowledge Transfer</td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-P">P</span></td>
+            <td><span class="cell-badge cell-P">P</span></td>
+            <td><span class="cell-empty">—</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><span class="cell-badge cell-I">I</span></td>
+            <td><div class="multi-badge"><span class="cell-badge cell-P">P</span><span class="cell-badge cell-D">D</span></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="notes">
+    <h3>How to Read This Matrix</h3>
+    <ul>
+      <li><strong>R — Recommend:</strong> Proposes the approach. Gathers data, evaluates options, and presents a recommendation to the Decide role. Typically the person or team closest to the work.</li>
+      <li><strong>A — Agree:</strong> Must agree before the decision proceeds. Has veto power — can block, but cannot unilaterally decide. Should be limited to 1–2 stakeholders with critical organizational stake.</li>
+      <li><strong>P — Perform:</strong> Executes the work once a decision is made. There can be multiple Perform roles on a single activity across different teams.</li>
+      <li><strong>I — Input:</strong> Provides information, analysis, or subject matter expertise. Advisory only — no decision or veto authority. Contributes when asked by the Recommend role.</li>
+      <li><strong>D — Decide:</strong> Makes the final call and is accountable for the outcome. There must be exactly <strong>one D per activity</strong> — no committees, no shared decision-making.</li>
+      <li><strong>Combined roles</strong> (e.g., P,D) indicate a team that both executes and decides for that activity. This is common when a team fully owns a domain end-to-end.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAPID Matrix — Decision-making Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-primary: #1072ba;
+    --navy-deep: #03457f;
+    --gold: #fdb73d;
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --text: #1a1d23;
+    --text-muted: #5a6070;
+    --border: #dfe2e8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    background: var(--navy-deep);
+    color: white;
+    padding: 48px 32px;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .header p {
+    font-size: 18px;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 48px 32px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  .card h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--navy-deep);
+  }
+
+  .card p {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--blue-primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--navy-deep);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: var(--gold);
+    color: var(--navy-deep);
+  }
+
+  .btn-secondary:hover {
+    background: #fdc96d;
+    transform: translateY(-2px);
+  }
+
+  .badge-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .badge-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    border: 2px solid;
+  }
+
+  .badge-r { background: #e3f2fd; color: #0d5a95; border-color: #90c9ed; }
+  .badge-a { background: #fff5e6; color: #c77700; border-color: #fdd087; }
+  .badge-p { background: #f2f7eb; color: #5a7a2a; border-color: #c5da9f; }
+  .badge-i { background: #e8f4fb; color: #3d7fb3; border-color: #a5d3ef; }
+  .badge-d { background: #03457f; color: #ffffff; border-color: #02366a; }
+
+  .footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>RAPID Matrix</h1>
+    <p>Decision-making and execution responsibilities framework</p>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>🚀 Start Here: RAPID Matrix App</h2>
+      <p>Create your own customizable RAPID matrix. Add sections, roles, and activities. Export to Confluence-compatible HTML.</p>
+      <a href="rapid-matrix-app.html" class="btn btn-primary">Open App (Blank Template)</a>
+    </div>
+
+    <div class="card">
+      <h2>📊 View Example</h2>
+      <p>See a fully populated 5-phase RAPID matrix example for a technology organization.</p>
+      <a href="rapid-matrix-example.html" class="btn btn-secondary">View Example</a>
+    </div>
+
+    <div class="card">
+      <h2>What is RAPID?</h2>
+      <p>RAPID is a decision-making framework that clarifies roles and responsibilities:</p>
+      
+      <div class="badge-legend">
+        <div class="badge-item">
+          <span class="badge badge-r">R</span>
+          <strong>Recommend</strong> — Makes the proposal
+        </div>
+        <div class="badge-item">
+          <span class="badge badge-a">A</span>
+          <strong>Agree</strong> — Has veto power
+        </div>
+        <div class="badge-item">
+          <span class="badge badge-p">P</span>
+          <strong>Perform</strong> — Does the work
+        </div>
+        <div class="badge-item">
+          <span class="badge badge-i">I</span>
+          <strong>Input</strong> — Provides advice
+        </div>
+        <div class="badge-item">
+          <span class="badge badge-d">D</span>
+          <strong>Decide</strong> — Makes final call
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Built with ❤️ for better decision-making
+  </div>
+</body>
+</html>

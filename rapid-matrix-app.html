@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAPID Matrix Editor — Confluence HTML Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-primary: #1072ba;
+    --blue-dark: #0d5a95;
+    --navy: #5a646a;
+    --navy-deep: #03457f;
+    --gold: #fdb73d;
+    --green: #8bad44;
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --text: #1a1d23;
+    --text-muted: #5a6070;
+    --border: #dfe2e8;
+    --border-light: #eceef2;
+
+    --r-bg: #e3f2fd; --r-text: #0d5a95; --r-border: #90c9ed;
+    --a-bg: #fff5e6; --a-text: #c77700; --a-border: #fdd087;
+    --p-bg: #f2f7eb; --p-text: #5a7a2a; --p-border: #c5da9f;
+    --i-bg: #e8f4fb; --i-text: #3d7fb3; --i-border: #a5d3ef;
+    --d-bg: #03457f; --d-text: #ffffff; --d-border: #02366a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--navy-deep);
+    color: white;
+    padding: 16px 32px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .toolbar h2 {
+    font-size: 16px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--navy-deep);
+  }
+
+  .btn-primary:hover {
+    background: #fdc96d;
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.15);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.25);
+  }
+
+  .btn-danger {
+    background: #dc3545;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: #c82333;
+  }
+
+  .page { max-width: 1400px; margin: 0 auto; padding: 40px 32px 80px; }
+
+  .header { margin-bottom: 40px; padding-bottom: 32px; border-bottom: 2px solid var(--border); }
+  .header h1 { 
+    font-size: 28px; 
+    font-weight: 700; 
+    color: var(--navy-deep); 
+    letter-spacing: -0.5px; 
+    margin-bottom: 8px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+  }
+  .header h1:hover {
+    background: var(--border-light);
+  }
+  .header .subtitle { 
+    font-size: 15px; 
+    color: var(--text-muted); 
+    max-width: 720px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+  }
+  .header .subtitle:hover {
+    background: var(--border-light);
+  }
+  .disclaimer {
+    margin-top: 16px; 
+    padding: 12px 16px;
+    background: var(--a-bg); 
+    border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0; 
+    font-size: 13px; 
+    color: var(--a-text); 
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .disclaimer:hover {
+    background: var(--a-border);
+  }
+
+  .editable-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid var(--blue-primary);
+    border-radius: 6px;
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    color: inherit;
+    background: white;
+  }
+
+  .editable-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid var(--blue-primary);
+    border-radius: 6px;
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+    background: white;
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  .legend { 
+    display: flex; 
+    gap: 12px; 
+    flex-wrap: wrap; 
+    margin-bottom: 32px;
+    position: sticky;
+    top: 72px;
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 90;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+  .legend-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 26px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+    cursor: grab;
+    transition: all 0.2s;
+  }
+  .legend-badge:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+  }
+  .legend-badge.dragging {
+    opacity: 0.5;
+  }
+  .badge-R { background: var(--r-bg); color: var(--r-text); border: 1px solid var(--r-border); }
+  .badge-A { background: var(--a-bg); color: var(--a-text); border: 1px solid var(--a-border); }
+  .badge-P { background: var(--p-bg); color: var(--p-text); border: 1px solid var(--p-border); }
+  .badge-I { background: var(--i-bg); color: var(--i-text); border: 1px solid var(--i-border); }
+  .badge-D { background: var(--d-bg); color: var(--d-text); border: 1px solid var(--d-border); }
+
+  .phase {
+    margin-bottom: 36px;
+    position: relative;
+    padding: 16px;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid transparent;
+  }
+
+  .phase:hover {
+    border-color: var(--border);
+  }
+
+  .phase-header { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .phase-number {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; background: var(--navy-deep); color: #fff;
+    border-radius: 50%; font-size: 13px; font-weight: 700;
+  }
+  .phase-title { 
+    font-size: 16px; 
+    font-weight: 700; 
+    color: var(--navy-deep); 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px;
+    flex-grow: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .phase-title:hover {
+    background: var(--border-light);
+  }
+
+  .phase-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .phase:hover .phase-actions {
+    opacity: 1;
+  }
+
+  .icon-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: var(--border-light);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .icon-btn:hover {
+    background: var(--border);
+    transform: scale(1.05);
+  }
+
+  .icon-btn.danger:hover {
+    background: #dc3545;
+    color: white;
+  }
+
+  .matrix-wrap {
+    overflow-x: auto; 
+    border-radius: 8px; 
+    border: 1px solid var(--border);
+    background: var(--surface); 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    min-width: 900px; 
+    font-size: 13px; 
+  }
+  thead th {
+    background: var(--navy-deep); 
+    color: #ffffff; 
+    font-weight: 600; 
+    font-size: 12px;
+    text-transform: uppercase; 
+    letter-spacing: 0.4px; 
+    padding: 12px 14px; 
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.1); 
+    position: relative;
+  }
+  thead th:first-child { 
+    text-align: left; 
+    min-width: 280px; 
+  }
+  thead th:last-child { 
+    border-right: none; 
+  }
+
+  .column-header {
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .column-header:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .column-delete-btn {
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: rgba(220, 53, 69, 0.8);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .column-header:hover .column-delete-btn {
+    display: flex;
+  }
+
+  .column-delete-btn:hover {
+    background: #dc3545;
+    transform: scale(1.2);
+  }
+
+  tbody td {
+    padding: 10px 14px; 
+    text-align: center;
+    border-bottom: 1px solid var(--border-light); 
+    border-right: 1px solid var(--border-light); 
+    vertical-align: middle;
+    position: relative;
+  }
+  tbody td:first-child {
+    text-align: left; 
+    font-weight: 500; 
+    color: var(--text); 
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    cursor: pointer;
+  }
+  tbody td:first-child:hover {
+    background: var(--border-light);
+  }
+  tbody td:last-child { 
+    border-right: none; 
+  }
+  tbody tr:last-child td { 
+    border-bottom: none; 
+  }
+  tbody tr:hover td { 
+    background: #f8f9fb; 
+  }
+  tbody tr:hover td:first-child { 
+    background: #f0f1f4; 
+  }
+
+  .cell-content {
+    padding: 4px;
+    border-radius: 4px;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .cell-content.drag-over {
+    background: rgba(16, 114, 186, 0.15);
+    border: 2px dashed var(--blue-primary);
+    transform: scale(1.05);
+  }
+
+  .cell-badge {
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center;
+    min-width: 28px; 
+    height: 24px; 
+    padding: 0 8px; 
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; 
+    font-size: 11px; 
+    font-weight: 600; 
+    letter-spacing: 0.3px;
+    cursor: grab;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .cell-badge:hover {
+    transform: scale(1.05);
+  }
+  .cell-badge:active {
+    cursor: grabbing;
+  }
+  .cell-badge.dragging {
+    opacity: 0.3;
+  }
+  .cell-badge::after {
+    content: '✕';
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 14px;
+    height: 14px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    font-size: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  .cell-badge:hover::after {
+    display: flex;
+  }
+  .cell-R { background: var(--r-bg); color: var(--r-text); border: 1px solid var(--r-border); }
+  .cell-A { background: var(--a-bg); color: var(--a-text); border: 1px solid var(--a-border); }
+  .cell-P { background: var(--p-bg); color: var(--p-text); border: 1px solid var(--p-border); }
+  .cell-I { background: var(--i-bg); color: var(--i-text); border: 1px solid var(--i-border); }
+  .cell-D { background: var(--d-bg); color: var(--d-text); border: 1px solid var(--d-border); }
+  .cell-empty { color: var(--border); font-size: 16px; }
+  .multi-badge { display: inline-flex; gap: 4px; align-items: center; justify-content: center; }
+
+  .notes {
+    margin-top: 40px; 
+    padding: 24px; 
+    background: var(--surface);
+    border: 1px solid var(--border); 
+    border-radius: 8px;
+  }
+  .notes h3 { 
+    font-size: 14px; 
+    font-weight: 700; 
+    color: var(--navy-deep); 
+    margin-bottom: 12px; 
+  }
+  .notes ul { 
+    list-style: none; 
+    padding: 0; 
+  }
+  .notes li { 
+    font-size: 13px; 
+    color: var(--text-muted); 
+    padding: 4px 0; 
+    padding-left: 16px; 
+    position: relative; 
+  }
+  .notes li::before { 
+    content: '→'; 
+    position: absolute; 
+    left: 0; 
+    color: var(--blue-primary); 
+    font-weight: 600; 
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+   right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal.active {
+    display: flex;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .modal-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy-deep);
+  }
+
+  .modal-body {
+    margin-bottom: 20px;
+  }
+
+  .modal-body label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .modal-body input,
+  .modal-body textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 16px;
+  }
+
+  .modal-body input:focus,
+  .modal-body textarea:focus {
+    outline: none;
+    border-color: var(--blue-primary);
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .add-row-btn {
+    margin-top: 8px;
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .add-row-btn:hover {
+    border-color: var(--blue-primary);
+    color: var(--blue-primary);
+    background: var(--r-bg);
+  }
+
+  .add-column-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7);
+    border: 1px dashed rgba(255,255,255,0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    transition: all 0.2s;
+  }
+
+  .add-column-btn:hover {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border-color: rgba(255,255,255,0.5);
+  }
+
+  @media print {
+    .toolbar { display: none; }
+    body { background: #fff; }
+    .page { padding: 20px; }
+    .legend { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h2>🛠️ RAPID Matrix Editor</h2>
+  <div class="toolbar-actions">
+    <button class="btn btn-secondary" data-action="add-phase">+ Add Section</button>
+    <button class="btn btn-secondary" data-action="import">Import JSON</button>
+    <button class="btn btn-primary" data-action="export">Export for Confluence</button>
+  </div>
+</div>
+
+<div class="page" id="preview">
+
+  <div class="header">
+    <h1 id="main-title" data-action="edit-title">RAPID Matrix — Technology Group</h1>
+    <p class="subtitle" id="main-subtitle" data-action="edit-subtitle">Decision-making and execution responsibilities across the software development lifecycle. Each activity identifies who recommends, who can veto, who performs the work, who provides input, and who makes the final call.</p>
+    <div class="disclaimer" id="main-disclaimer" data-action="edit-disclaimer">⚠️ Discussion starter — This is an example matrix to provoke conversation, not a final mandate. Validate assignments with each team and adjust based on your org's reality.</div>
+  </div>
+
+  <div class="notes">
+    <h3>How to Read This Matrix</h3>
+    <ul>
+      <li><strong>R — Recommend:</strong> Proposes the approach. Gathers data, evaluates options, and presents a recommendation to the Decide role.</li>
+      <li><strong>A — Agree:</strong> Must agree before the decision proceeds. Has veto power — can block, but cannot unilaterally decide.</li>
+      <li><strong>P — Perform:</strong> Executes the work once a decision is made. There can be multiple Perform roles on a single activity across different teams.</li>
+      <li><strong>I — Input:</strong> Provides information, analysis, or subject matter expertise. Advisory only — no decision or veto authority.</li>
+      <li><strong>D — Decide:</strong> Makes the final call and is accountable for the outcome. There must be exactly <strong>one D per activity</strong> — no committees, no shared decision-making.</li>
+      <li><strong>💡 Tip:</strong> Drag badges from the legend below to cells, or drag between cells. Hover over badges to remove them.</li>
+    </ul>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <span class="legend-badge badge-R" draggable="true" data-badge="R">R</span> Recommend
+    </div>
+    <div class="legend-item">
+      <span class="legend-badge badge-A" draggable="true" data-badge="A">A</span> Agree (veto)
+    </div>
+    <div class="legend-item">
+      <span class="legend-badge badge-P" draggable="true" data-badge="P">P</span> Perform
+    </div>
+    <div class="legend-item">
+      <span class="legend-badge badge-I" draggable="true" data-badge="I">I</span> Input
+    </div>
+    <div class="legend-item">
+      <span class="legend-badge badge-D" draggable="true" data-badge="D">D</span> Decide
+    </div>
+  </div>
+
+  <div id="phases-container"></div>
+
+</div>
+
+<!-- Modals -->
+<div id="add-column-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Add Column</h3>
+      <button class="icon-btn" data-action="close-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>Column Name:</label>
+      <input type="text" id="new-column-name" placeholder="e.g., DevOps Team">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-action="close-modal">Cancel</button>
+      <button class="btn btn-primary" data-action="save-column">Add</button>
+    </div>
+  </div>
+</div>
+
+<div id="add-row-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Add Activity</h3>
+      <button class="icon-btn" data-action="close-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>Activity Name:</label>
+      <input type="text" id="new-row-name" placeholder="e.g., Code Review Process">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-action="close-modal">Cancel</button>
+      <button class="btn btn-primary" data-action="save-row">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ============================================================================
+// DATA MODEL & STATE MANAGEMENT
+// ============================================================================
+
+class MatrixState {
+  constructor() {
+    this.data = {
+      title: "RAPID Matrix",
+      subtitle: "Decision-making and execution responsibilities for your organization.",
+      disclaimer: "⚠️ Customize this matrix for your team — add sections, roles, and activities as needed.",
+      phases: [
+        {
+          id: 1,
+          number: 1,
+          title: "Phase 1",
+          columns: ["Team A", "Team B"],
+          rows: [
+            { activity: "Activity 1", values: [[], []] },
+            { activity: "Activity 2", values: [[], []] }
+          ]
+        },
+        {
+          id: 2,
+          number: 2,
+          title: "Phase 2",
+          columns: ["Team A", "Team B"],
+          rows: [
+            { activity: "Activity 1", values: [[], []] },
+            { activity: "Activity 2", values: [[], []] }
+          ]
+        }
+      ]
+    };
+    this.currentModal = null;
+    this.editContext = null;
+  }
+
+  getPhase(phaseId) {
+    return this.data.phases.find(p => p.id === phaseId);
+  }
+
+  addPhase(title) {
+    const newId = Math.max(...this.data.phases.map(p => p.id), 0) + 1;
+    const newNumber = this.data.phases.length + 1;
+    const defaultColumns = this.data.phases[0]?.columns || ["Product", "Engineering", "Architecture"];
+    
+    this.data.phases.push({
+      id: newId,
+      number: newNumber,
+      title: title,
+      columns: [...defaultColumns],
+      rows: []
+    });
+  }
+
+  deletePhase(phaseId) {
+    this.data.phases = this.data.phases.filter(p => p.id !== phaseId);
+  }
+
+  addColumn(phaseId, columnName) {
+    const phase = this.getPhase(phaseId);
+    if (!phase) return;
+    
+    phase.columns.push(columnName);
+    phase.rows.forEach(row => row.values.push([]));
+  }
+
+  deleteColumn(phaseId, colIdx) {
+    const phase = this.getPhase(phaseId);
+    if (!phase) return;
+    
+    phase.columns.splice(colIdx, 1);
+    phase.rows.forEach(row => row.values.splice(colIdx, 1));
+  }
+
+  addRow(phaseId, activityName) {
+    const phase = this.getPhase(phaseId);
+    if (!phase) return;
+    
+    const emptyValues = new Array(phase.columns.length).fill(null).map(() => []);
+    phase.rows.push({ activity: activityName, values: emptyValues });
+  }
+
+  deleteRow(phaseId, rowIdx) {
+    const phase = this.getPhase(phaseId);
+    if (!phase) return;
+    phase.rows.splice(rowIdx, 1);
+  }
+
+  updateCell(phaseId, rowIdx, colIdx, badges) {
+    const phase = this.getPhase(phaseId);
+    if (!phase || !phase.rows[rowIdx]) return;
+    phase.rows[rowIdx].values[colIdx] = badges;
+  }
+
+  addBadgeToCell(phaseId, rowIdx, colIdx, badge) {
+    const phase = this.getPhase(phaseId);
+    if (!phase || !phase.rows[rowIdx]) return;
+    
+    const currentBadges = phase.rows[rowIdx].values[colIdx] || [];
+    if (!currentBadges.includes(badge)) {
+      currentBadges.push(badge);
+      phase.rows[rowIdx].values[colIdx] = currentBadges;
+    }
+  }
+
+  removeBadgeFromCell(phaseId, rowIdx, colIdx, badge) {
+    const phase = this.getPhase(phaseId);
+    if (!phase || !phase.rows[rowIdx]) return;
+    
+    const currentBadges = phase.rows[rowIdx].values[colIdx] || [];
+    phase.rows[rowIdx].values[colIdx] = currentBadges.filter(b => b !== badge);
+  }
+
+  updatePhaseTitle(phaseId, title) {
+    const phase = this.getPhase(phaseId);
+    if (phase) phase.title = title;
+  }
+
+  updateColumnName(phaseId, colIdx, name) {
+    const phase = this.getPhase(phaseId);
+    if (phase && phase.columns[colIdx] !== undefined) {
+      phase.columns[colIdx] = name;
+    }
+  }
+
+  updateActivityName(phaseId, rowIdx, name) {
+    const phase = this.getPhase(phaseId);
+    if (phase && phase.rows[rowIdx]) {
+      phase.rows[rowIdx].activity = name;
+    }
+  }
+
+  importData(jsonData) {
+    try {
+      this.data = JSON.parse(jsonData);
+      return true;
+    } catch (e) {
+      console.error('Import failed:', e);
+      return false;
+    }
+  }
+
+  exportData() {
+    return JSON.stringify(this.data, null, 2);
+  }
+}
+
+// ============================================================================
+// UI CONTROLLER
+// ============================================================================
+
+class UIController {
+  constructor(state) {
+    this.state = state;
+    this.elements = {
+      phasesContainer: document.getElementById('phases-container'),
+      mainTitle: document.getElementById('main-title'),
+      mainSubtitle: document.getElementById('main-subtitle'),
+      mainDisclaimer: document.getElementById('main-disclaimer'),
+      addColumnModal: document.getElementById('add-column-modal'),
+      addRowModal: document.getElementById('add-row-modal'),
+      newColumnInput: document.getElementById('new-column-name'),
+      newRowInput: document.getElementById('new-row-name')
+    };
+  }
+
+  render() {
+    this.renderHeader();
+    this.renderPhases();
+  }
+
+  renderHeader() {
+    this.elements.mainTitle.textContent = this.state.data.title;
+    this.elements.mainSubtitle.textContent = this.state.data.subtitle;
+    this.elements.mainDisclaimer.textContent = this.state.data.disclaimer;
+  }
+
+  renderPhases() {
+    this.elements.phasesContainer.innerHTML = '';
+    
+    this.state.data.phases.forEach(phase => {
+      const phaseElement = this.createPhaseElement(phase);
+      this.elements.phasesContainer.appendChild(phaseElement);
+    });
+  }
+
+  createPhaseElement(phase) {
+    const div = document.createElement('div');
+    div.className = 'phase';
+    div.innerHTML = `
+      <div class="phase-header">
+        <span class="phase-number">${phase.number}</span>
+        <span class="phase-title" data-action="edit-phase-title" data-phase-id="${phase.id}">${this.escapeHtml(phase.title)}</span>
+        <div class="phase-actions">
+          <button class="icon-btn" data-action="add-column" data-phase-id="${phase.id}" title="Add Column">+📋</button>
+          <button class="icon-btn danger" data-action="delete-phase" data-phase-id="${phase.id}" title="Delete Section">🗑️</button>
+        </div>
+      </div>
+      <div class="matrix-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Activity</th>
+              ${phase.columns.map((col, i) => `
+                <th>
+                  <div class="column-header">
+                    <span data-action="edit-column" data-phase-id="${phase.id}" data-col-idx="${i}">${this.escapeHtml(col)}</span>
+                    <button class="column-delete-btn" data-action="delete-column" data-phase-id="${phase.id}" data-col-idx="${i}" title="Delete Column">✕</button>
+                  </div>
+                </th>
+              `).join('')}
+              <th class="add-column-btn" data-action="add-column" data-phase-id="${phase.id}">+ Add</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${phase.rows.map((row, rowIdx) => `
+              <tr>
+                <td data-action="edit-activity" data-phase-id="${phase.id}" data-row-idx="${rowIdx}">${this.escapeHtml(row.activity)}</td>
+                ${row.values.map((val, colIdx) => `
+                  <td>
+                    <div class="cell-content" 
+                         data-phase-id="${phase.id}" 
+                         data-row-idx="${rowIdx}" 
+                         data-col-idx="${colIdx}"
+                         data-droppable="true">
+                      ${this.renderCellBadges(val, phase.id, rowIdx, colIdx)}
+                    </div>
+                  </td>
+                `).join('')}
+                <td>
+                  <button class="icon-btn danger" data-action="delete-row" data-phase-id="${phase.id}" data-row-idx="${rowIdx}" title="Delete Row">✕</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      <button class="add-row-btn" data-action="add-row" data-phase-id="${phase.id}">+ Add Activity</button>
+    `;
+    return div;
+  }
+
+  renderCellBadges(badges, phaseId, rowIdx, colIdx) {
+    if (!badges || badges.length === 0) {
+      return '<span class="cell-empty">—</span>';
+    }
+    
+    const badgeHtml = badges.map(badge => 
+      `<span class="cell-badge cell-${badge}" 
+             draggable="true" 
+             data-badge="${badge}"
+             data-phase-id="${phaseId}"
+             data-row-idx="${rowIdx}"
+             data-col-idx="${colIdx}"
+             data-action="remove-badge">${badge}</span>`
+    ).join('');
+    
+    if (badges.length === 1) {
+      return badgeHtml;
+    }
+    return `<div class="multi-badge">${badgeHtml}</div>`;
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.add('active');
+      this.state.currentModal = modalId;
+    }
+  }
+
+  closeModal() {
+    if (this.state.currentModal) {
+      const modal = document.getElementById(this.state.currentModal);
+      if (modal) {
+        modal.classList.remove('active');
+      }
+      this.state.currentModal = null;
+    }
+  }
+}
+
+// ============================================================================
+// DRAG AND DROP CONTROLLER
+// ============================================================================
+
+class DragDropController {
+  constructor(state, ui) {
+    this.state = state;
+    this.ui = ui;
+    this.draggedBadge = null;
+    this.dragSource = null;
+  }
+
+  handleDragStart(e) {
+    const badge = e.target.dataset.badge;
+    if (!badge) return;
+
+    this.draggedBadge = badge;
+    
+    // Store source if dragging from a cell (not from legend)
+    if (e.target.dataset.phaseId) {
+      this.dragSource = {
+        phaseId: parseInt(e.target.dataset.phaseId),
+        rowIdx: parseInt(e.target.dataset.rowIdx),
+        colIdx: parseInt(e.target.dataset.colIdx)
+      };
+    } else {
+      this.dragSource = null;
+    }
+
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/plain', badge);
+  }
+
+  handleDragEnd(e) {
+    e.target.classList.remove('dragging');
+    
+    // Remove from source cell if drag was from a cell
+    if (this.dragSource) {
+      const { phaseId, rowIdx, colIdx } = this.dragSource;
+      this.state.removeBadgeFromCell(phaseId, rowIdx, colIdx, this.draggedBadge);
+      this.ui.render();
+    }
+    
+    this.draggedBadge = null;
+    this.dragSource = null;
+  }
+
+  handleDragOver(e) {
+    const cell = e.target.closest('[data-droppable]');
+    if (!cell) return;
+    
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    
+    if (!cell.classList.contains('drag-over')) {
+      cell.classList.add('drag-over');
+    }
+  }
+
+  handleDragLeave(e) {
+    const cell = e.target.closest('[data-droppable]');
+    if (cell && e.relatedTarget && !cell.contains(e.relatedTarget)) {
+      cell.classList.remove('drag-over');
+    }
+  }
+
+  handleDrop(e) {
+    e.preventDefault();
+    
+    const cell = e.target.closest('[data-droppable]');
+    if (!cell) return;
+    
+    cell.classList.remove('drag-over');
+    
+    const phaseId = parseInt(cell.dataset.phaseId);
+    const rowIdx = parseInt(cell.dataset.rowIdx);
+    const colIdx = parseInt(cell.dataset.colIdx);
+    
+    if (this.draggedBadge) {
+      this.state.addBadgeToCell(phaseId, rowIdx, colIdx, this.draggedBadge);
+      this.ui.render();
+    }
+  }
+}
+
+// ============================================================================
+// EXPORT CONTROLLER
+// ============================================================================
+
+class ExportController {
+  constructor(state) {
+    this.state = state;
+    this.styleMap = {
+      '.header': 'margin-bottom: 40px; padding-bottom: 32px; border-bottom: 2px solid #dfe2e8;',
+      '.header h1': 'font-size: 28px; font-weight: 700; color: #0e2d52; letter-spacing: -0.5px; margin-bottom: 8px;',
+      '.header .subtitle': 'font-size: 15px; color: #5a6070; max-width: 720px;',
+      '.disclaimer': 'margin-top: 16px; padding: 12px 16px; background: #fef5e0; border-left: 3px solid #fdb73e; border-radius: 0 6px 6px 0; font-size: 13px; color: #8a6210; font-weight: 500;',
+      '.legend': 'display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px;',
+      '.legend-item': 'display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500;',
+      '.legend-badge': 'display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 26px; border-radius: 4px; font-family: monospace; font-size: 12px; font-weight: 600;',
+      '.badge-R': 'background: #e8f4fd; color: #0c5a94; border: 1px solid #b3d9f2;',
+      '.badge-A': 'background: #fef5e0; color: #8a6210; border: 1px solid #f5d88a;',
+      '.badge-P': 'background: #dceaf7; color: #17477e; border: 1px solid #a3c4e4;',
+      '.badge-I': 'background: #eef5e2; color: #4a6620; border: 1px solid #c5dba0;',
+      '.badge-D': 'background: #1a2d4a; color: #ffffff; border: 1px solid #0e2d52;',
+      '.phase': 'margin-bottom: 36px;',
+      '.phase-header': 'display: flex; align-items: center; gap: 10px; margin-bottom: 12px;',
+      '.phase-number': 'display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #0e2d52; color: #fff; border-radius: 50%; font-size: 13px; font-weight: 700;',
+      '.phase-title': 'font-size: 16px; font-weight: 700; color: #0e2d52; text-transform: uppercase; letter-spacing: 0.5px;',
+      '.matrix-wrap': 'overflow-x: auto; border-radius: 8px; border: 1px solid #dfe2e8; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.04);',
+      'table': 'width: 100%; border-collapse: collapse; font-size: 13px;',
+      'thead th': 'background: #0e2d52; color: #ffffff; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; padding: 12px 14px; text-align: center; border-right: 1px solid rgba(255,255,255,0.1);',
+      'thead th:first-child': 'text-align: left; min-width: 280px;',
+      'thead th:last-child': 'border-right: none;',
+      'tbody td': 'padding: 10px 14px; text-align: center; border-bottom: 1px solid #eceef2; border-right: 1px solid #eceef2; vertical-align: middle;',
+      'tbody td:first-child': 'text-align: left; font-weight: 500; color: #1a1d23; background: #ffffff; border-right: 1px solid #dfe2e8;',
+      'tbody td:last-child': 'border-right: none;',
+      'tbody tr:last-child td': 'border-bottom: none;',
+      '.cell-badge': 'display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 24px; padding: 0 8px; border-radius: 4px; font-family: monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.3px;',
+      '.cell-R': 'background: #e8f4fd; color: #0c5a94; border: 1px solid #b3d9f2;',
+      '.cell-A': 'background: #fef5e0; color: #8a6210; border: 1px solid #f5d88a;',
+      '.cell-P': 'background: #dceaf7; color: #17477e; border: 1px solid #a3c4e4;',
+      '.cell-I': 'background: #eef5e2; color: #4a6620; border: 1px solid #c5dba0;',
+      '.cell-D': 'background: #1a2d4a; color: #ffffff; border: 1px solid #0e2d52;',
+      '.cell-empty': 'color: #dfe2e8; font-size: 16px;',
+      '.multi-badge': 'display: inline-flex; gap: 4px; align-items: center; justify-content: center;',
+      '.notes': 'margin-top: 40px; padding: 24px; background: #ffffff; border: 1px solid #dfe2e8; border-radius: 8px;',
+      '.notes h3': 'font-size: 14px; font-weight: 700; color: #0e2d52; margin-bottom: 12px;',
+      '.notes ul': 'list-style: none; padding: 0;',
+      '.notes li': 'font-size: 13px; color: #5a6070; padding: 4px 0; padding-left: 16px; position: relative;',
+      '.notes li::before': 'content: "→"; position: absolute; left: 0; color: #1072ba; font-weight: 600;'
+    };
+  }
+
+  export() {
+    const preview = document.getElementById('preview').cloneNode(true);
+    
+    // Remove interactive elements
+    preview.querySelectorAll('.phase-actions, .icon-btn, .add-row-btn, .add-column-btn').forEach(el => el.remove());
+    preview.querySelectorAll('[data-action]').forEach(el => {
+      el.removeAttribute('data-action');
+      el.removeAttribute('data-phase-id');
+      el.removeAttribute('data-row-idx');
+      el.removeAttribute('data-col-idx');
+      el.removeAttribute('data-badge');
+      el.removeAttribute('draggable');
+      el.removeAttribute('data-droppable');
+    });
+    preview.querySelectorAll('.phase').forEach(el => {
+      el.style.border = 'none';
+      el.style.padding = '0';
+    });
+    preview.querySelectorAll('.legend').forEach(el => {
+      el.style.position = 'static';
+      el.style.boxShadow = 'none';
+    });
+    
+    // Apply inline styles
+    const html = this.applyInlineStyles(preview);
+    
+    // Download
+    this.downloadHTML(html);
+  }
+
+  applyInlineStyles(element) {
+    Object.keys(this.styleMap).forEach(selector => {
+      const elements = element.querySelectorAll(selector);
+      elements.forEach(el => {
+        const existingStyle = el.getAttribute('style') || '';
+        el.setAttribute('style', existingStyle + this.styleMap[selector]);
+      });
+    });
+    
+    return element.outerHTML;
+  }
+
+  downloadHTML(html) {
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'rapid-matrix-confluence.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+}
+
+// ============================================================================
+// APP CONTROLLER - MAIN APPLICATION
+// ============================================================================
+
+class RAPIDMatrixApp {
+  constructor() {
+    this.state = new MatrixState();
+    this.ui = new UIController(this.state);
+    this.dragDrop = new DragDropController(this.state, this.ui);
+    this.exporter = new ExportController(this.state);
+    
+    this.init();
+  }
+
+  init() {
+    this.ui.render();
+    this.attachEventListeners();
+  }
+
+  attachEventListeners() {
+    // Event delegation for all clicks
+    document.addEventListener('click', (e) => this.handleClick(e));
+    
+    // Drag and drop events
+    document.addEventListener('dragstart', (e) => {
+      if (e.target.draggable) {
+        this.dragDrop.handleDragStart(e);
+      }
+    });
+    
+    document.addEventListener('dragend', (e) => {
+      if (e.target.draggable) {
+        this.dragDrop.handleDragEnd(e);
+      }
+    });
+    
+    document.addEventListener('dragover', (e) => {
+      this.dragDrop.handleDragOver(e);
+    });
+    
+    document.addEventListener('dragleave', (e) => {
+      this.dragDrop.handleDragLeave(e);
+    });
+    
+    document.addEventListener('drop', (e) => {
+      this.dragDrop.handleDrop(e);
+    });
+
+    // Modal close on background click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          this.ui.closeModal();
+        }
+      });
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.state.currentModal) {
+        this.ui.closeModal();
+      }
+      
+      // Enter key in modal inputs
+      if (e.key === 'Enter' && this.state.currentModal) {
+        if (this.state.currentModal === 'add-column-modal') {
+          this.saveNewColumn();
+        } else if (this.state.currentModal === 'add-row-modal') {
+          this.saveNewRow();
+        }
+      }
+    });
+  }
+
+  handleClick(e) {
+    const action = e.target.dataset.action || e.target.closest('[data-action]')?.dataset.action;
+    if (!action) return;
+
+    const target = e.target.closest('[data-action]');
+    
+    const actionHandlers = {
+      'edit-title': () => this.editTitle(),
+      'edit-subtitle': () => this.editSubtitle(),
+      'edit-disclaimer': () => this.editDisclaimer(),
+      'add-phase': () => this.addPhase(),
+      'delete-phase': () => this.deletePhase(parseInt(target.dataset.phaseId)),
+      'edit-phase-title': () => this.editPhaseTitle(parseInt(target.dataset.phaseId)),
+      'edit-column': () => this.editColumnName(parseInt(target.dataset.phaseId), parseInt(target.dataset.colIdx)),
+      'delete-column': (e) => {
+        e.stopPropagation();
+        this.deleteColumn(parseInt(target.dataset.phaseId), parseInt(target.dataset.colIdx));
+      },
+      'add-column': () => this.showAddColumnModal(parseInt(target.dataset.phaseId)),
+      'add-row': () => this.showAddRowModal(parseInt(target.dataset.phaseId)),
+      'delete-row': () => this.deleteRow(parseInt(target.dataset.phaseId), parseInt(target.dataset.rowIdx)),
+      'edit-activity': () => this.editActivityName(parseInt(target.dataset.phaseId), parseInt(target.dataset.rowIdx)),
+      'remove-badge': (e) => {
+        e.stopPropagation();
+        this.removeBadge(target);
+      },
+      'close-modal': () => this.ui.closeModal(),
+      'save-column': () => this.saveNewColumn(),
+      'save-row': () => this.saveNewRow(),
+      'export': () => this.export(),
+      'import': () => this.import()
+    };
+
+    const handler = actionHandlers[action];
+    if (handler) {
+      handler(e);
+    }
+  }
+
+  editTitle() {
+    const newTitle = prompt("Edit title:", this.state.data.title);
+    if (newTitle !== null && newTitle.trim()) {
+      this.state.data.title = newTitle.trim();
+      this.ui.renderHeader();
+    }
+  }
+
+  editSubtitle() {
+    const newSubtitle = prompt("Edit subtitle:", this.state.data.subtitle);
+    if (newSubtitle !== null && newSubtitle.trim()) {
+      this.state.data.subtitle = newSubtitle.trim();
+      this.ui.renderHeader();
+    }
+  }
+
+  editDisclaimer() {
+    const newDisclaimer = prompt("Edit disclaimer:", this.state.data.disclaimer);
+    if (newDisclaimer !== null && newDisclaimer.trim()) {
+      this.state.data.disclaimer = newDisclaimer.trim();
+      this.ui.renderHeader();
+    }
+  }
+
+  addPhase() {
+    const title = prompt("New section title:", "New Phase");
+    if (title && title.trim()) {
+      this.state.addPhase(title.trim());
+      this.ui.render();
+    }
+  }
+
+  deletePhase(phaseId) {
+    if (confirm('Delete this entire section?')) {
+      this.state.deletePhase(phaseId);
+      this.ui.render();
+    }
+  }
+
+  editPhaseTitle(phaseId) {
+    const phase = this.state.getPhase(phaseId);
+    const newTitle = prompt("Edit section title:", phase.title);
+    if (newTitle !== null && newTitle.trim()) {
+      this.state.updatePhaseTitle(phaseId, newTitle.trim());
+      this.ui.render();
+    }
+  }
+
+  editColumnName(phaseId, colIdx) {
+    const phase = this.state.getPhase(phaseId);
+    const newName = prompt("Edit column name:", phase.columns[colIdx]);
+    if (newName !== null && newName.trim()) {
+      this.state.updateColumnName(phaseId, colIdx, newName.trim());
+      this.ui.render();
+    }
+  }
+
+  deleteColumn(phaseId, colIdx) {
+    const phase = this.state.getPhase(phaseId);
+    if (confirm(`Delete column "${phase.columns[colIdx]}"?\n\nThis will remove all data in this column.`)) {
+      this.state.deleteColumn(phaseId, colIdx);
+      this.ui.render();
+    }
+  }
+
+  editActivityName(phaseId, rowIdx) {
+    const phase = this.state.getPhase(phaseId);
+    const newName = prompt("Edit activity name:", phase.rows[rowIdx].activity);
+    if (newName !== null && newName.trim()) {
+      this.state.updateActivityName(phaseId, rowIdx, newName.trim());
+      this.ui.render();
+    }
+  }
+
+  showAddColumnModal(phaseId) {
+    this.state.editContext = { phaseId };
+    this.ui.elements.newColumnInput.value = '';
+    this.ui.openModal('add-column-modal');
+    setTimeout(() => this.ui.elements.newColumnInput.focus(), 100);
+  }
+
+  saveNewColumn() {
+    const name = this.ui.elements.newColumnInput.value.trim();
+    if (!name) {
+      alert('Please enter a column name');
+      return;
+    }
+    
+    this.state.addColumn(this.state.editContext.phaseId, name);
+    this.ui.closeModal();
+    this.ui.render();
+  }
+
+  showAddRowModal(phaseId) {
+    this.state.editContext = { phaseId };
+    this.ui.elements.newRowInput.value = '';
+    this.ui.openModal('add-row-modal');
+    setTimeout(() => this.ui.elements.newRowInput.focus(), 100);
+  }
+
+  saveNewRow() {
+    const name = this.ui.elements.newRowInput.value.trim();
+    if (!name) {
+      alert('Please enter an activity name');
+      return;
+    }
+    
+    this.state.addRow(this.state.editContext.phaseId, name);
+    this.ui.closeModal();
+    this.ui.render();
+  }
+
+  deleteRow(phaseId, rowIdx) {
+    if (confirm('Delete this activity?')) {
+      this.state.deleteRow(phaseId, rowIdx);
+      this.ui.render();
+    }
+  }
+
+  removeBadge(badgeElement) {
+    const phaseId = parseInt(badgeElement.dataset.phaseId);
+    const rowIdx = parseInt(badgeElement.dataset.rowIdx);
+    const colIdx = parseInt(badgeElement.dataset.colIdx);
+    const badge = badgeElement.dataset.badge;
+    
+    this.state.removeBadgeFromCell(phaseId, rowIdx, colIdx, badge);
+    this.ui.render();
+  }
+
+  export() {
+    this.exporter.export();
+    alert('HTML exported! You can now paste this into Confluence\'s HTML editor.');
+  }
+
+  import() {
+    const json = prompt('Paste your matrix JSON data:');
+    if (!json) return;
+    
+    if (this.state.importData(json)) {
+      this.ui.render();
+      alert('Data imported successfully!');
+    } else {
+      alert('Invalid JSON data. Please check the format and try again.');
+    }
+  }
+}
+
+// ============================================================================
+// INITIALIZE APPLICATION
+// ============================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.app = new RAPIDMatrixApp();
+});
+
+</script>
+
+</body>
+</html>
