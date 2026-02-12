@@ -4,7 +4,7 @@ A web-based tool for creating and managing RAPID decision-making matrices with e
 
 ## 🚀 Live Demo
 
-Visit the [RAPID Matrix App](https://YOUR-USERNAME.github.io/alz-rapid/) (update after deploying)
+Visit the [RAPID Matrix App](https://thechiefn.github.io/alz-rapid/)
 
 ## 📖 What is RAPID?
 
